@@ -5,8 +5,8 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((newUser) => {
-      res.send(newUser);
+    .then((users) => {
+      res.status(201).send({ data: users });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
@@ -66,8 +66,8 @@ const updateProfile = (req, res) => {
       }
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') {
-        return res.status(ERROR_CODE).send({
+      if (error.name === 'CastError') {
+        res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные',
         });
       }
@@ -90,9 +90,9 @@ const updateAvatar = (req, res) => {
       }
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') {
-        return res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при обновлении аватара.',
+      if (error.name === 'CastError') {
+        res.status(ERROR_CODE).send({
+          message: 'Переданы некорректные данные',
         });
       }
       return res
