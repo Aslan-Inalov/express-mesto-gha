@@ -6,8 +6,8 @@ const createCard = (req, res) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: _id })
-    .then((newCard) => {
-      res.status(201).send(newCard);
+    .then((cards) => {
+      res.status(201).send({ data: cards });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
@@ -23,7 +23,7 @@ const createCard = (req, res) => {
 
 const getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.send({ cards }))
+    .then((cards) => res.send({ data: cards }))
     .catch(() => {
       res.status(ERROR_SERVER).send({ message: 'На сервере произошла ошибка' });
     });
@@ -38,7 +38,7 @@ const deleteCard = (req, res) => {
           .status(ERROR_NOT_FOUND)
           .send({ message: ' Карточка с указанным _id не найдена.' });
       } else {
-        res.send({ card });
+        res.send({ data: card });
       }
     })
     .catch((error) => {
@@ -67,7 +67,7 @@ const likeCard = (req, res) => {
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Передан несуществующий _id карточки.' });
       } else {
-        res.send({ card });
+        res.send({ data: card });
       }
     })
     .catch((error) => {
@@ -96,7 +96,7 @@ const dislikeCard = (req, res) => {
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Передан несуществующий _id карточки.' });
       } else {
-        res.send({ card });
+        res.send({ data: card });
       }
     })
     .catch((error) => {
