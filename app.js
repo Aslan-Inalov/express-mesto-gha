@@ -1,6 +1,8 @@
+/* eslint-disable import/no-extraneous-dependencies */
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 const { createUser, login } = require('./controllers/users');
 const router = require('./routes');
 const errorsHandler = require('./middlewares/errorHandler');
@@ -16,6 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signin', validateLoginData, login);
 app.post('/signup', validateRegisterData, createUser);
 app.use(router);
+app.use(errors());
 app.use(errorsHandler);
 
 app.listen(3000, () => {
