@@ -1,14 +1,14 @@
 const router = require('express').Router();
+const NotFoundError = require('../errors/NotFoundError');
+const auth = require('../middlewares/auth');
 const cardsRouter = require('./cards');
 const usersRouter = require('./users');
 
-router.use('/users', usersRouter);
-router.use('/cards', cardsRouter);
+router.use('/users', auth, usersRouter);
+router.use('/cards', auth, cardsRouter);
 
-router.use((req, res) => {
-  res.status(404).send({
-    message: 'Запрошен несуществующий роут. Проверьте URL и метод запроса',
-  });
+router.use((req, res, next) => {
+  next(new NotFoundError('Такой страницы не существует'));
 });
 
 module.exports = router;
