@@ -20,14 +20,17 @@ const createUser = (req, res, next) => {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
-    .then((users) => {
-      res.status(201).send({ data: users });
+    .then(() => {
+      res.status(201).send({
+        name, about, avatar, email,
+      });
     })
     .catch((error) => {
       if (error.code === 11000) {
         next(
           new ConflictError('Пользователь с такой почтой уже зарегистрирвован'),
         );
+        return;
       }
       if (error.name === 'ValidationError') {
         next(
@@ -36,7 +39,8 @@ const createUser = (req, res, next) => {
         return;
       }
       next(error);
-    });
+    })
+    .catch(next);
 };
 
 const login = (req, res, next) => {

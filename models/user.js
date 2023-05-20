@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const { URL_REGEXP } = require('../utils/constants');
 
 const userShema = new mongoose.Schema({
   name: {
@@ -17,6 +18,10 @@ const userShema = new mongoose.Schema({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator: (v) => URL_REGEXP.test(v),
+      message: 'This is not a valid link!',
+    },
   },
   email: {
     type: String,
