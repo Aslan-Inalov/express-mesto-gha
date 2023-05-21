@@ -9,8 +9,8 @@ const {
 const { validateUserId, validateUserInfo, validateUserAvatar } = require('../utils/validators/userValidator');
 
 usersRouter.get('/', getUsers);
-usersRouter.get('/:id', validateUserId, getUser);
 usersRouter.get('/me', getUserInfo);
+usersRouter.get('/:id', validateUserId, getUser);
 usersRouter.patch('/me', validateUserInfo, updateProfile);
 usersRouter.patch('/me/avatar', validateUserAvatar, updateAvatar);
 
