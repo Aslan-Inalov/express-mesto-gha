@@ -27,18 +27,16 @@ const createUser = (req, res, next) => {
     })
     .catch((error) => {
       if (error.code === 11000) {
-        next(
+        return next(
           new ConflictError('Пользователь с такой почтой уже зарегистрирвован'),
         );
-        return;
       }
       if (error.name === 'ValidationError') {
-        next(
+        return next(
           new BadRequestError('Переданы некорректные данные.'),
         );
-        return;
       }
-      next(error);
+      return next(error);
     })
     .catch(next);
 };
@@ -48,14 +46,14 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        next(
+        return next(
           new UnauthorizedError('Неправильные почта или пароль'),
         );
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            next(new UnauthorizedError('Неправильные почта или пароль'));
+            return next(new UnauthorizedError('Неправильные почта или пароль'));
           }
           const token = jwt.sign({ _id: user._id }, JWT_SECRET || 'JWT_SECRET', { expiresIn: '7d' });
           return res.send({ token });
@@ -74,19 +72,17 @@ const getUser = (req, res, next) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('Пользователь по указанному _id не найден'));
-        return;
+        return next(new NotFoundError('Пользователь по указанному _id не найден'));
       }
-      res.send({ data: user });
+      return res.send({ data: user });
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        next(
+        return next(
           new BadRequestError('Переданы не валидные данные'),
         );
-        return;
       }
-      next(error);
+      return next(error);
     });
 };
 
@@ -94,12 +90,11 @@ const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        next(
+        return next(
           new NotFoundError('Пользователь по указанному _id не найден'),
         );
-        return;
       }
-      res.send({ data: user });
+      return res.send({ data: user });
     })
     .catch(next);
 };
@@ -115,27 +110,19 @@ const updateProfile = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        next(
+        return next(
           new NotFoundError('Пользователь по указанному _id не найден'),
         );
-        return;
       }
-      res.send({ data: user });
+      return res.send({ data: user });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        next(
+        return next(
           new BadRequestError('Переданы некорректные данные.'),
         );
-        return;
       }
-      if (error.name === 'CastError') {
-        next(
-          new BadRequestError('Переданы не валидные данные'),
-        );
-        return;
-      }
-      next(error);
+      return next(error);
     });
 };
 
@@ -146,27 +133,24 @@ const updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(owner, avatar, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        next(
+        return next(
           new NotFoundError('Пользователь по указанному _id не найден'),
         );
-        return;
       }
-      res.send({ data: user });
+      return res.send({ data: user });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        next(
+        return next(
           new BadRequestError('Переданы некорректные данные.'),
         );
-        return;
       }
       if (error.name === 'CastError') {
-        next(
+        return next(
           new BadRequestError('Переданы не валидные данные'),
         );
-        return;
       }
-      next(error);
+      return next(error);
     });
 };
 

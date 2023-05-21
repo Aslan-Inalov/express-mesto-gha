@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
@@ -30,28 +31,26 @@ const getCards = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        next(new NotFoundError('Карточка с указанным _id не найдена.'));
-      } else {
-        const owner = card.owner.toString();
-        if (req.user._id === owner) {
-          return Card.deleteOne(card).then(() => {
-            res.send({ card });
-          });
-        }
-        next(new ForbiddenError('Чужие карточки удалить нельзя!'));
+        throw new NotFoundError('Карточка с указанным _id не найдена.');
       }
+      const owner = card.owner.toString();
+      if (req.user._id !== owner) {
+        throw new ForbiddenError('Чужие карточки удалить нельзя!');
+      }
+      return Card.findByIdAndRemove(cardId)
+        .then((deletedCard) => {
+          res.send({ card: deletedCard });
+        });
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        next(
-          new BadRequestError('Переданы некорректные данные.'),
-        );
-        return;
+        next(new BadRequestError('Переданы некорректные данные.'));
+      } else {
+        next(error);
       }
-      next(error);
     });
 };
 
@@ -62,7 +61,7 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: owner } },
-    { new: true, runValidators: true },
+    { new: true },
   )
     .then((card) => {
       if (!card) {
@@ -89,7 +88,7 @@ const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: owner } },
-    { new: true, runValidators: true },
+    { new: true },
   )
     .then((card) => {
       if (!card) {
