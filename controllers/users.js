@@ -145,11 +145,6 @@ const updateAvatar = (req, res, next) => {
           new BadRequestError('Переданы некорректные данные.'),
         );
       }
-      if (error.name === 'CastError') {
-        return next(
-          new BadRequestError('Переданы не валидные данные'),
-        );
-      }
       return next(error);
     });
 };
