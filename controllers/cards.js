@@ -9,8 +9,8 @@ const createCard = (req, res, next) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: _id })
-    .then((cards) => {
-      res.status(201).send({ data: cards });
+    .then((newCard) => {
+      res.status(201).send(newCard);
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
@@ -25,7 +25,8 @@ const createCard = (req, res, next) => {
 
 const getCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.send({ data: cards }))
+    .populate(['owner', 'likes'])
+    .then((cards) => res.send(cards))
     .catch(next);
 };
 
@@ -63,11 +64,12 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: owner } },
     { new: true },
   )
+    .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
         next(new NotFoundError('Карточка с указанным _id не найдена.'));
       } else {
-        res.send({ data: card });
+        res.send(card);
       }
     })
     .catch((error) => {
@@ -90,11 +92,12 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: owner } },
     { new: true },
   )
+    .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
         next(new NotFoundError('Карточка с указанным _id не найдена.'));
       } else {
-        res.send({ data: card });
+        res.send(card);
       }
     })
     .catch((error) => {
